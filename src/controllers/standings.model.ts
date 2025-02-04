@@ -1,42 +1,37 @@
 import { Elysia, t } from 'elysia';
 import { eq } from 'drizzle-orm';
+import db from '../config/db.config';
+import { Standing } from '../models/standing.model';
 import {
   createInsertSchema,
   createSelectSchema,
   createUpdateSchema,
 } from 'drizzle-typebox';
-import db from '../config/db.config';
-import { Tournament } from '../models/tournament.model';
 import { messageSchema } from '../utils/util';
 
-const tournamentRouter = new Elysia({
-  prefix: '/tournaments',
+const standingRouter = new Elysia({
+  prefix: '/standings',
   detail: {
-    tags: ['Tournaments'],
-  },
+    tags: ['Standings']
+  }
 });
 
-const selectSchema = createSelectSchema(Tournament);
-const insertSchema = createInsertSchema(Tournament);
-const updateSchema = createUpdateSchema(Tournament);
+const selectSchema = createSelectSchema(Standing);
+const insertSchema = createInsertSchema(Standing);
+const updateSchema = createUpdateSchema(Standing);
 
-tournamentRouter.get(
+standingRouter.get(
   '/',
   async () => {
-    return await db.select().from(Tournament);
+    return await db.select().from(Standing);
   },
-  {
-    response: t.Array(selectSchema),
-  }
+  { response: t.Array(selectSchema) }
 );
 
-tournamentRouter.get(
+standingRouter.get(
   '/:id',
   async ({ params: { id }, error }) => {
-    const data = await db
-      .select()
-      .from(Tournament)
-      .where(eq(Tournament.id, id));
+    const data = await db.select().from(Standing).where(eq(Standing.id, id));
     if (!data) {
       return error(404, {
         message: 'Not found',
@@ -53,11 +48,11 @@ tournamentRouter.get(
   }
 );
 
-tournamentRouter.post(
+standingRouter.post(
   '/',
   async ({ body, set }) => {
     set.status = 201;
-    await db.insert(Tournament).values(body);
+    await db.insert(Standing).values(body);
     return {
       message: 'success',
     };
@@ -70,13 +65,13 @@ tournamentRouter.post(
   }
 );
 
-tournamentRouter.put(
+standingRouter.put(
   '/:id',
   async ({ body, params: { id } }) => {
     await db
-      .update(Tournament)
+      .update(Standing)
       .set({ updatedAt: new Date(), ...body })
-      .where(eq(Tournament.id, id));
+      .where(eq(Standing.id, id));
     return {
       message: 'success',
     };
@@ -90,11 +85,11 @@ tournamentRouter.put(
   }
 );
 
-tournamentRouter.delete(
+standingRouter.delete(
   '/:id',
   async ({ params: { id } }) => {
-    await db.delete(Tournament).where(eq(Tournament.id, id));
-    return { message: 'Tournament deleted' };
+    await db.delete(Standing).where(eq(Standing.id, id));
+    return { message: 'Standing deleted' };
   },
   {
     params: t.Object({ id: t.Integer() }),
@@ -104,4 +99,4 @@ tournamentRouter.delete(
   }
 );
 
-export default tournamentRouter;
+export default standingRouter;

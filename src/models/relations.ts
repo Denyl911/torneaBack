@@ -4,22 +4,22 @@ import { Team } from './team.model';
 import { Player } from './player.model';
 import { Match } from './match.model';
 import { Group } from './group.model';
-import { Standing } from './standings.model';
+import { Standing } from './standing.model';
 
 export const teamsRealtions = relations(Team, ({ one, many }) => ({
   tournament: one(Tournament, {
-    fields: [Team.tournament_id],
+    fields: [Team.tournamentId],
     references: [Tournament.id],
   }),
   players: many(Player),
   home_matches: many(Match, {
-    relationName: 'homeTeam'
+    relationName: 'homeTeam',
   }),
   away_matches: many(Match, {
-    relationName: 'awayTeam'
+    relationName: 'awayTeam',
   }),
   groups: one(Group, {
-    fields: [Team.group_id],
+    fields: [Team.groupId],
     references: [Group.id],
   }),
 }));
@@ -33,23 +33,23 @@ export const tournamentsRelations = relations(Tournament, ({ many }) => ({
 
 export const playerRelations = relations(Player, ({ one }) => ({
   team: one(Team, {
-    fields: [Player.team_id],
+    fields: [Player.teamId],
     references: [Team.id],
   }),
 }));
 
 export const matchRelations = relations(Match, ({ one }) => ({
   tounament: one(Tournament, {
-    fields: [Match.tournament_id],
+    fields: [Match.tournamentId],
     references: [Tournament.id],
   }),
   homeTeam: one(Team, {
-    fields: [Match.home_id],
+    fields: [Match.homeId],
     references: [Team.id],
     relationName: 'homeTeam',
   }),
   awayTeam: one(Team, {
-    fields: [Match.away_id],
+    fields: [Match.awayId],
     references: [Team.id],
     relationName: 'awayTeam',
   }),
@@ -57,7 +57,7 @@ export const matchRelations = relations(Match, ({ one }) => ({
 
 export const groupRelations = relations(Group, ({ one, many }) => ({
   tournament: one(Tournament, {
-    fields: [Group.tournament_id],
+    fields: [Group.tournamentId],
     references: [Tournament.id],
   }),
   teams: many(Team),
@@ -65,11 +65,11 @@ export const groupRelations = relations(Group, ({ one, many }) => ({
 
 export const standingRelations = relations(Standing, ({ one }) => ({
   tournament: one(Tournament, {
-    fields: [Standing.tournament_id],
+    fields: [Standing.tournamentId],
     references: [Tournament.id],
   }),
   team: one(Team, {
-    fields: [Standing.team_id],
+    fields: [Standing.teamId],
     references: [Team.id],
   }),
 }));

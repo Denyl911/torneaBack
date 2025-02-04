@@ -1,42 +1,37 @@
 import { Elysia, t } from 'elysia';
 import { eq } from 'drizzle-orm';
+import db from '../config/db.config';
+import { Group } from '../models/group.model';
 import {
   createInsertSchema,
   createSelectSchema,
   createUpdateSchema,
 } from 'drizzle-typebox';
-import db from '../config/db.config';
-import { Tournament } from '../models/tournament.model';
 import { messageSchema } from '../utils/util';
 
-const tournamentRouter = new Elysia({
-  prefix: '/tournaments',
+const groupRouter = new Elysia({
+  prefix: '/groups',
   detail: {
-    tags: ['Tournaments'],
-  },
+    tags: ['Groups']
+  }
 });
 
-const selectSchema = createSelectSchema(Tournament);
-const insertSchema = createInsertSchema(Tournament);
-const updateSchema = createUpdateSchema(Tournament);
+const selectSchema = createSelectSchema(Group);
+const insertSchema = createInsertSchema(Group);
+const updateSchema = createUpdateSchema(Group);
 
-tournamentRouter.get(
+groupRouter.get(
   '/',
   async () => {
-    return await db.select().from(Tournament);
+    return await db.select().from(Group);
   },
-  {
-    response: t.Array(selectSchema),
-  }
+  { response: t.Array(selectSchema) }
 );
 
-tournamentRouter.get(
+groupRouter.get(
   '/:id',
   async ({ params: { id }, error }) => {
-    const data = await db
-      .select()
-      .from(Tournament)
-      .where(eq(Tournament.id, id));
+    const data = await db.select().from(Group).where(eq(Group.id, id));
     if (!data) {
       return error(404, {
         message: 'Not found',
@@ -53,11 +48,11 @@ tournamentRouter.get(
   }
 );
 
-tournamentRouter.post(
+groupRouter.post(
   '/',
   async ({ body, set }) => {
     set.status = 201;
-    await db.insert(Tournament).values(body);
+    await db.insert(Group).values(body);
     return {
       message: 'success',
     };
@@ -70,13 +65,13 @@ tournamentRouter.post(
   }
 );
 
-tournamentRouter.put(
+groupRouter.put(
   '/:id',
   async ({ body, params: { id } }) => {
     await db
-      .update(Tournament)
+      .update(Group)
       .set({ updatedAt: new Date(), ...body })
-      .where(eq(Tournament.id, id));
+      .where(eq(Group.id, id));
     return {
       message: 'success',
     };
@@ -90,11 +85,11 @@ tournamentRouter.put(
   }
 );
 
-tournamentRouter.delete(
+groupRouter.delete(
   '/:id',
   async ({ params: { id } }) => {
-    await db.delete(Tournament).where(eq(Tournament.id, id));
-    return { message: 'Tournament deleted' };
+    await db.delete(Group).where(eq(Group.id, id));
+    return { message: 'Group deleted' };
   },
   {
     params: t.Object({ id: t.Integer() }),
@@ -104,4 +99,4 @@ tournamentRouter.delete(
   }
 );
 
-export default tournamentRouter;
+export default groupRouter;

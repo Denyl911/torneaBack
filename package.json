@@ -10,6 +10,7 @@
     "@elysiajs/jwt": "^1.2.0",
     "@elysiajs/swagger": "^1.2.0",
     "@sinclair/typebox": "^0.34.15",
+    "better-auth": "^1.1.15",
     "drizzle-orm": "^0.39.1",
     "drizzle-typebox": "^0.3.0",
     "elysia": "latest",

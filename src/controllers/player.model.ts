@@ -2,12 +2,31 @@ import { Elysia, t } from 'elysia';
 import { eq } from 'drizzle-orm';
 import db from '../config/db.config';
 import { Player } from '../models/player.model';
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from 'drizzle-typebox';
+import { messageSchema } from '../utils/util';
 
 const playerRouter = new Elysia({
-  prefix: '/tournaments',
+  prefix: '/players',
+  detail: {
+    tags: ['Players'],
+  },
 });
 
-playerRouter.get('/', async () => await db.select().from(Player));
+const selectSchema = createSelectSchema(Player);
+const insertSchema = createInsertSchema(Player);
+const updateSchema = createUpdateSchema(Player);
+
+playerRouter.get(
+  '/',
+  async () => {
+    return await db.select().from(Player);
+  },
+  { response: t.Array(selectSchema) }
+);
 
 playerRouter.get(
   '/:id',
@@ -22,38 +41,47 @@ playerRouter.get(
   },
   {
     params: t.Object({ id: t.Integer() }),
+    response: {
+      200: selectSchema,
+      404: messageSchema,
+    },
   }
 );
 
-type newPlayer = typeof Player.$inferInsert;
 playerRouter.post(
   '/',
-  async ({ body, set }: { body: newPlayer; set: { status: number } }) => {
+  async ({ body, set }) => {
     set.status = 201;
     await db.insert(Player).values(body);
     return {
       message: 'success',
     };
+  },
+  {
+    body: insertSchema,
+    response: {
+      201: messageSchema,
+    },
   }
 );
 
 playerRouter.put(
   '/:id',
   async ({ body, params: { id } }) => {
-    return await db
+    await db
       .update(Player)
-      .set({ updated_at: new Date(), ...body })
-      .where(eq(Player.id, id))
-      .returning();
+      .set({ updatedAt: new Date(), ...body })
+      .where(eq(Player.id, id));
+    return {
+      message: 'success',
+    };
   },
   {
-    body: t.Object({
-      name: t.Optional(t.String()),
-      birthdate: t.Optional(t.Date({t})),
-      position: t.Optional(t.String()),
-      team_id: t.Optional(t.Integer()),
-    }),
+    body: updateSchema,
     params: t.Object({ id: t.Integer() }),
+    response: {
+      200: messageSchema,
+    },
   }
 );
 
@@ -65,6 +93,20 @@ playerRouter.delete(
   },
   {
     params: t.Object({ id: t.Integer() }),
+    response: {
+      200: messageSchema,
+    },
+  }
+);
+
+playerRouter.get(
+  '/team/:id',
+  async ({ params: { id } }) => {
+    return await db.select().from(Player).where(eq(Player.teamId, id));
+  },
+  {
+    params: t.Object({ id: t.Integer() }),
+    response: t.Array(selectSchema),
   }
 );
 
